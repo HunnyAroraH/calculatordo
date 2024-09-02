@@ -11,9 +11,9 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # Allow requests from any origin
 
-# Path to the Chrome binary
-chrome_binary_path = '/usr/bin/google-chrome'
-chromedriver_path = os.path.join(os.getcwd(), 'chromedriver')
+# Path to Chrome binary after installation
+chrome_binary_path = '/tmp/chrome/chrome-linux64/chrome'
+chromedriver_path = '/tmp/chrome/chromedriver-linux64/chromedriver'
 
 @app.route("/")
 def index():
@@ -25,8 +25,9 @@ def fetch_shop_now_link(service_link):
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.binary_location = chrome_binary_path  # Path to Chrome binary
+    options.binary_location = chrome_binary_path  # Path to the installed Chrome binary
 
+    # Use the local ChromeDriver binary
     service = ChromeService(executable_path=chromedriver_path)
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -65,8 +66,9 @@ def scrape_links():
         options.add_argument('--headless')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
-        options.binary_location = chrome_binary_path  # Path to Chrome binary
+        options.binary_location = chrome_binary_path  # Path to the installed Chrome binary
 
+        # Use the local ChromeDriver binary
         service = ChromeService(executable_path=chromedriver_path)
         driver = webdriver.Chrome(service=service, options=options)
 
@@ -99,4 +101,4 @@ def scrape_links():
         return response, 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True)
