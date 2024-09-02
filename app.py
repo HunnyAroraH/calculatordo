@@ -1,16 +1,19 @@
+import os
 from flask import Flask, render_template, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import concurrent.futures
 from flask_cors import CORS
-import time
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # Allow requests from any origin
+
+# Path to the Chrome binary
+chrome_binary_path = '/usr/bin/google-chrome'
+chromedriver_path = os.path.join(os.getcwd(), 'chromedriver')
 
 @app.route("/")
 def index():
@@ -20,7 +23,12 @@ def fetch_shop_now_link(service_link):
     print(f"Starting fetch for: {service_link}")
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
-    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.binary_location = chrome_binary_path  # Path to Chrome binary
+
+    service = ChromeService(executable_path=chromedriver_path)
+    driver = webdriver.Chrome(service=service, options=options)
 
     try:
         driver.get(service_link)
@@ -55,7 +63,12 @@ def scrape_links():
 
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        options.binary_location = chrome_binary_path  # Path to Chrome binary
+
+        service = ChromeService(executable_path=chromedriver_path)
+        driver = webdriver.Chrome(service=service, options=options)
 
         base_url = f"https://{ibo_number}.acnibo.com/us-en/services"
         print(f"Navigating to {base_url}")
