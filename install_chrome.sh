@@ -1,42 +1,37 @@
 #!/bin/bash
 
-# Debugging Start
 echo "Starting Chrome installation script..."
 echo "Working directory: $(pwd)"
 echo "Current user: $(whoami)"
 echo "System information:"
 uname -a
-echo "Environment variables:"
-env
 
 # Create a temporary directory to work in
 mkdir -p /tmp/chrome
 cd /tmp/chrome
 
-# Download the Chrome .deb package
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O google-chrome-stable_current_amd64.deb
+# Download the Chrome .tar.gz package
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm -O google-chrome-stable_current_x86_64.rpm
 
-# Install dependencies
-apt-get update
-apt-get install -y wget unzip xvfb libxi6 libgconf-2-4
+# Extract the .rpm package
+rpm2cpio google-chrome-stable_current_x86_64.rpm | cpio -idmv
 
-# Extract and install the Chrome .deb package
-dpkg -i google-chrome-stable_current_amd64.deb || apt-get install -yf
-
-# Verify installation
-if [ -f /usr/bin/google-chrome ]; then
-  echo "Chrome installation successful."
+# Verify the installation
+if [ -f /tmp/chrome/opt/google/chrome/chrome ]; then
+  echo "Chrome binary found, setting up executable permissions."
+  chmod +x /tmp/chrome/opt/google/chrome/chrome
 else
-  echo "Chrome installation failed."
+  echo "Chrome binary not found. Exiting."
   exit 1
 fi
 
+# List the contents of the Chrome directory to verify the binary is there
+ls -la /tmp/chrome/opt/google/chrome/
+
 # Make Chrome executable
-chmod +x /usr/bin/google-chrome
+chmod +x /tmp/chrome/opt/google/chrome/chrome
 
-# Clean up
-rm -rf /tmp/chrome
+# Set environment variable for the Chrome binary
+export CHROME_BINARY_PATH="/tmp/chrome/opt/google/chrome/chrome"
 
-# Final check
-google-chrome --version
 echo "Chrome installation script completed."
