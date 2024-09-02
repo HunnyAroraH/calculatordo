@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Calculator</title>
+    <!-- Use Flask's url_for to correctly reference static files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="buttons">
+        <button id="filtersBtn">Filters</button>
+        <select id="filterCategory" style="display:none;">
+            <option value="all">All Services</option>
+            <option value="residential">Residential</option>
+            <option value="business">Business</option>
+            <option value="att">AT&T</option>
+        </select>
+        <select id="filterService" style="display:none;">
+            <option value="all">All Services</option>
+            <!-- Service names will be populated by JavaScript -->
+        </select>
+        <button id="goBtn" style="display:none;">Go</button>
+    </div>
+
+    <div class="buttons">
+        <button id="startCalculatingBtn">Start calculating</button>
+        <button id="toggleOffBtn" style="display:none;">X</button>
+        <button id="resetFiltersBtn" style="display:none;">Reset Filters</button>
+        <button id="getServiceLinksBtn">Get your service links</button>
+    </div>
+    <div id="iboInputContainer" style="display:none; flex-direction: row; align-items: center;">
+        <input type="text" id="iboNumber" placeholder="Enter your IBO number" />
+        <button id="submitIboBtn">Submit</button>
+    </div>
+
+    <table id="calculatorTable">
+        <tbody id="calculatorTableBody"></tbody>
+    </table>
+
+    <div class="buttons">
+        <button id="calculateBtn" style="display:none;">Calculate</button>
+    </div>
+
+    <hr id="calculationDivider" style=" margin-top: 30px;">
+
+    <h3 id="calculationHeadline" style="display:none; text-align: center;">Your Total Calculation</h3>
+
+    <div id="calculationSummary" style="display:none; text-align: center; margin-top: 20px;">
+        <p>Total number of services selected: <span id="totalServices">0</span></p>
+        <p>Total points: <span id="totalPoints">0</span></p>
+        <p>Total cost: <span id="totalCost">$0.00</span></p>
+    </div>
+
+    <div id="calculationFeedback" style="display:none; text-align: center; margin-top: 20px;"></div>
+
+    <h4 id="downloadHeadline" style="display:none; text-align: center; margin-top: 20px;">Click the buttons below to download the detailed calculation</h4>
+
+    <div class="download-buttons">
+        <button id="downloadExcelBtn">Download as Excel / CSV file</button>
+        <button id="downloadServiceLinksBtn" style="display:none;">Download your service links</button>
+    </div>
+
+    <!-- JavaScript files -->
+    <script src="{{ url_for('static', filename='js/data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

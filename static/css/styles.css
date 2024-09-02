@@ -1,0 +1,231 @@
+/* Fonts */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #FAFAFA;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #FFF;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+}
+
+th {
+    background-color: #F0F0F0;
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+    font-weight: 600;
+}
+
+td {
+    border-bottom: 1px solid #EEE;
+}
+
+/* Service Name Images */
+.service-name img {
+    width: 150px;
+    height: 100px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Headers */
+.residential-header, .business-header, .att-header {
+    font-weight: bold;
+    font-size: 1.25em;
+    text-align: center;
+    background-color: #F0F0F0;
+    color: #FF653E;
+    padding: 10px 0;
+}
+
+.att-sub-header td {
+    background-color: #F0F0F0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+    text-align: center;
+    padding: 10px;
+}
+
+/* Buttons */
+.buttons {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center; /* Ensures buttons are aligned vertically */
+    gap: 10px; /* Adjust space between buttons */
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #FF653E;
+    color: #FFF;
+    font-family: 'Montserrat', sans-serif;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #e24d28;
+}
+
+/* Download Buttons */
+.download-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.download-buttons button {
+    width: 200px;
+    background-color: #28a745; /* Green color */
+}
+
+.download-buttons button:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+/* Inputs */
+input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.cost-input {
+    padding: 5px;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 60px;
+}
+
+.icon-container i {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+/* Filters */
+#filterCategory, #filterService {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #CCC;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+#goBtn {
+    background-color: #FF653E;
+    color: #FFF;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    padding: 8px 20px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#goBtn:hover {
+    background-color: #e24d28;
+}
+
+#calculateBtn {
+    margin-top: 30px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #FF653E;
+    color: #FFF;
+    font-family: 'Montserrat', sans-serif;
+    transition: background-color 0.3s ease;
+}
+
+#calculateBtn:hover {
+    background-color: #e24d28;
+}
+
+#resetFiltersBtn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px; 
+    cursor: pointer;
+    background-color: #FF653E;
+    color: #FFF;
+    font-family: 'Montserrat', sans-serif;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+}
+
+#resetFiltersBtn:hover {
+    background-color: #e24d28;
+}
+
+.download-buttons button {
+    width: 200px;
+    background-color: #28a745; /* Green color */
+}
+
+.download-buttons button:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+.pencil-icon {
+    margin-left: 5px;
+}
+ 
+/* Black text color */
+.black-text {
+    color: black;
+}
+
+/* Orange text color */
+.orange-text {
+    color: #e24d28;
+}
+
+#iboInputContainer input {
+    padding: 10px;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 200px;
+}
+
+#iboInputContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px; /* Adjust space between input and button */
+}
+
+#downloadServiceLinksBtn {
+    display: none;
+    margin-left: 10px; /* Add space between the buttons if needed */
+}
