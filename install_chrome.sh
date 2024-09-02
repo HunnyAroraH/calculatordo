@@ -25,5 +25,13 @@ else
   exit 1
 fi
 
-# No need to download chromedriver if it's already in the root directory
-echo "Assuming chromedriver is already in the root directory."
+# Ensure chromedriver in the root directory has the correct permissions
+if [ -f ./chromedriver ]; then
+  echo "Chromedriver found in the root directory, setting up executable permissions."
+  chmod +x ./chromedriver
+else
+  echo "Chromedriver not found in the root directory. Exiting."
+  exit 1
+fi
+
+echo "Chrome installation script completed."
