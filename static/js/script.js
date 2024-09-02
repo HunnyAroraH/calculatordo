@@ -653,7 +653,7 @@ document.getElementById('submitIboBtn').addEventListener('click', function () {
     // Show loading indicator or progress bar (optional)
     alert('Generating links, please wait...');
 
-    fetch('https://calculatorvercel-lnjps57xz-gary-roys-projects.vercel.app/scrape-links', {
+    fetch('https://monkfish-app-pbnp9.ondigitalocean.app/scrape-links', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
