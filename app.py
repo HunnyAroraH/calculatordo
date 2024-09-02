@@ -1,5 +1,6 @@
 import os
 import stat
+import requests
 from flask import Flask, render_template, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -12,16 +13,28 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # Allow requests from any origin
 
-# Path to Chrome binary after installation
+# Paths
 chrome_binary_path = '/tmp/chrome/chrome-linux64/chrome'
 chromedriver_path = os.path.join(os.getcwd(), 'chromedriver')
 
-# Ensure chromedriver has executable permissions
-if os.path.exists(chromedriver_path):
-    print(f"Setting executable permissions for chromedriver at {chromedriver_path}")
-    os.chmod(chromedriver_path, stat.S_IRWXU)  # Set read, write, and execute permissions for the owner
-else:
-    print(f"Chromedriver not found at {chromedriver_path}")
+# Download and setup chromedriver
+chromedriver_url = "https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.86/linux64/chromedriver-linux64.zip"
+chromedriver_zip_path = os.path.join(os.getcwd(), 'chromedriver.zip')
+
+if not os.path.exists(chromedriver_path):
+    print(f"Downloading chromedriver from {chromedriver_url}")
+    response = requests.get(chromedriver_url)
+    with open(chromedriver_zip_path, 'wb') as file:
+        file.write(response.content)
+
+    # Unzip chromedriver
+    import zipfile
+    with zipfile.ZipFile(chromedriver_zip_path, 'r') as zip_ref:
+        zip_ref.extractall(os.getcwd())
+    
+    # Ensure chromedriver has executable permissions
+    os.chmod(chromedriver_path, stat.S_IRWXU)
+    print(f"Chromedriver downloaded and executable permissions set at {chromedriver_path}")
 
 @app.route("/")
 def index():
@@ -35,7 +48,6 @@ def fetch_shop_now_link(service_link):
     options.add_argument('--disable-dev-shm-usage')
     options.binary_location = chrome_binary_path  # Path to the installed Chrome binary
 
-    # Use the local ChromeDriver binary
     service = ChromeService(executable_path=chromedriver_path)
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -76,7 +88,6 @@ def scrape_links():
         options.add_argument('--disable-dev-shm-usage')
         options.binary_location = chrome_binary_path  # Path to the installed Chrome binary
 
-        # Use the local ChromeDriver binary
         service = ChromeService(executable_path=chromedriver_path)
         driver = webdriver.Chrome(service=service, options=options)
 
