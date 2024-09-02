@@ -10,28 +10,28 @@ uname -a
 mkdir -p /tmp/chrome
 cd /tmp/chrome
 
-# Download the Chrome .tar.gz package
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.tar.gz -O google-chrome-stable_current_amd64.tar.gz
+# Download the Chrome zip package using the provided link
+wget https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.86/linux64/chrome-linux64.zip -O chrome-linux64.zip
 
-# Extract the .tar.gz package
-tar -xzf google-chrome-stable_current_amd64.tar.gz --strip-components=1 -C /tmp/chrome/
+# Extract the zip package
+unzip chrome-linux64.zip
 
 # Verify the installation
-if [ -f /tmp/chrome/opt/google/chrome/chrome ]; then
+if [ -f /tmp/chrome/chrome-linux64/chrome ]; then
   echo "Chrome binary found, setting up executable permissions."
-  chmod +x /tmp/chrome/opt/google/chrome/chrome
+  chmod +x /tmp/chrome/chrome-linux64/chrome
 else
   echo "Chrome binary not found. Exiting."
   exit 1
 fi
 
 # List the contents of the Chrome directory to verify the binary is there
-ls -la /tmp/chrome/opt/google/chrome/
+ls -la /tmp/chrome/chrome-linux64/
 
 # Make Chrome executable
-chmod +x /tmp/chrome/opt/google/chrome/chrome
+chmod +x /tmp/chrome/chrome-linux64/chrome
 
 # Set environment variable for the Chrome binary
-export CHROME_BINARY_PATH="/tmp/chrome/opt/google/chrome/chrome"
+export CHROME_BINARY_PATH="/tmp/chrome/chrome-linux64/chrome"
 
 echo "Chrome installation script completed."
