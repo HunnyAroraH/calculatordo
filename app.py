@@ -13,34 +13,35 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # Allow requests from any origin
 
-# Paths
-chrome_binary_path = '/tmp/chrome/chrome-linux64/chrome'
-chromedriver_path = os.path.join(os.getcwd(), 'chromedriver')
+# Path to chromedriver in the root directory
+chromedriver_path = "/workspace/chromedriver"
 
-# Download and setup chromedriver
-chromedriver_url = "https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.86/linux64/chromedriver-linux64.zip"
-chromedriver_zip_path = os.path.join(os.getcwd(), 'chromedriver.zip')
-
+# Check if chromedriver exists
 if not os.path.exists(chromedriver_path):
-    print(f"Downloading chromedriver from {chromedriver_url}")
-    response = requests.get(chromedriver_url)
-    with open(chromedriver_zip_path, 'wb') as file:
-        file.write(response.content)
+    # Download chromedriver
+    print("Downloading chromedriver...")
+    url = "https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.86/linux64/chromedriver-linux64.zip"
+    r = requests.get(url)
+    with open(chromedriver_path, 'wb') as file:
+        file.write(r.content)
+    print("Download completed.")
 
-    # Unzip chromedriver
-    import zipfile
-    with zipfile.ZipFile(chromedriver_zip_path, 'r') as zip_ref:
-        zip_ref.extractall(os.getcwd())
-    
-    # Ensure chromedriver has executable permissions
-    os.chmod(chromedriver_path, stat.S_IRWXU)
-    print(f"Chromedriver downloaded and executable permissions set at {chromedriver_path}")
+# Ensure the file has executable permissions
+print(f"Setting executable permissions for chromedriver at {chromedriver_path}")
+st = os.stat(chromedriver_path)
+os.chmod(chromedriver_path, st.st_mode | stat.S_IEXEC)
 
-# Debugging: Print current permissions of chromedriver
-chromedriver_permissions = oct(os.stat(chromedriver_path).st_mode)[-3:]
-print(f"Chromedriver permissions: {chromedriver_permissions}")
-print(f"Chromedriver path: {chromedriver_path}")
-print(f"Chrome binary path: {chrome_binary_path}")
+# Verify that it's executable
+if os.access(chromedriver_path, os.X_OK):
+    print(f"{chromedriver_path} is executable")
+else:
+    raise Exception(f"{chromedriver_path} is not executable")
+
+# Set the PATH environment variable
+os.environ["PATH"] += os.pathsep + "/workspace"
+
+# Path to Chrome binary after installation
+chrome_binary_path = '/tmp/chrome/opt/google/chrome/chrome'
 
 @app.route("/")
 def index():
@@ -54,6 +55,7 @@ def fetch_shop_now_link(service_link):
     options.add_argument('--disable-dev-shm-usage')
     options.binary_location = chrome_binary_path  # Path to the installed Chrome binary
 
+    # Use the local ChromeDriver binary
     service = ChromeService(executable_path=chromedriver_path)
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -94,6 +96,7 @@ def scrape_links():
         options.add_argument('--disable-dev-shm-usage')
         options.binary_location = chrome_binary_path  # Path to the installed Chrome binary
 
+        # Use the local ChromeDriver binary
         service = ChromeService(executable_path=chromedriver_path)
         driver = webdriver.Chrome(service=service, options=options)
 
