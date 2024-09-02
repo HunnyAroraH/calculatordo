@@ -36,6 +36,12 @@ if not os.path.exists(chromedriver_path):
     os.chmod(chromedriver_path, stat.S_IRWXU)
     print(f"Chromedriver downloaded and executable permissions set at {chromedriver_path}")
 
+# Debugging: Print current permissions of chromedriver
+chromedriver_permissions = oct(os.stat(chromedriver_path).st_mode)[-3:]
+print(f"Chromedriver permissions: {chromedriver_permissions}")
+print(f"Chromedriver path: {chromedriver_path}")
+print(f"Chrome binary path: {chrome_binary_path}")
+
 @app.route("/")
 def index():
     return render_template('index.html')
