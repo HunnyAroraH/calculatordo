@@ -11,10 +11,10 @@ mkdir -p /tmp/chrome
 cd /tmp/chrome
 
 # Download the Chrome .tar.gz package
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm -O google-chrome-stable_current_x86_64.rpm
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.tar.gz -O google-chrome-stable_current_amd64.tar.gz
 
-# Extract the .rpm package
-rpm2cpio google-chrome-stable_current_x86_64.rpm | cpio -idmv
+# Extract the .tar.gz package
+tar -xzf google-chrome-stable_current_amd64.tar.gz --strip-components=1 -C /tmp/chrome/
 
 # Verify the installation
 if [ -f /tmp/chrome/opt/google/chrome/chrome ]; then
