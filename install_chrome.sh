@@ -13,10 +13,10 @@ cd /tmp/chrome
 # Download the Chrome zip package using the provided link
 wget https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.86/linux64/chrome-linux64.zip -O chrome-linux64.zip
 
-# Extract the zip package
+# Extract the Chrome zip package
 unzip chrome-linux64.zip
 
-# Verify the installation
+# Verify the Chrome installation
 if [ -f /tmp/chrome/chrome-linux64/chrome ]; then
   echo "Chrome binary found, setting up executable permissions."
   chmod +x /tmp/chrome/chrome-linux64/chrome
@@ -25,13 +25,14 @@ else
   exit 1
 fi
 
-# List the contents of the Chrome directory to verify the binary is there
-ls -la /tmp/chrome/chrome-linux64/
+# Download and extract the `chromedriver` using the provided link
+wget https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.86/linux64/chromedriver-linux64.zip -O chromedriver-linux64.zip
+unzip chromedriver-linux64.zip -d /tmp/chrome/
 
-# Make Chrome executable
-chmod +x /tmp/chrome/chrome-linux64/chrome
+# Make `chromedriver` executable
+chmod +x /tmp/chrome/chromedriver-linux64/chromedriver
 
-# Set environment variable for the Chrome binary
-export CHROME_BINARY_PATH="/tmp/chrome/chrome-linux64/chrome"
+# Add Chrome and Chromedriver to the PATH
+export PATH=$PATH:/tmp/chrome/chrome-linux64:/tmp/chrome/chromedriver-linux64
 
-echo "Chrome installation script completed."
+echo "Chrome and Chromedriver installation script completed."
