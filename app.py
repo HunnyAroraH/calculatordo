@@ -1,4 +1,5 @@
 import os
+import stat
 from flask import Flask, render_template, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -13,7 +14,14 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # Allow requests from any origin
 
 # Path to Chrome binary after installation
 chrome_binary_path = '/tmp/chrome/chrome-linux64/chrome'
-chromedriver_path = './chromedriver'
+chromedriver_path = os.path.join(os.getcwd(), 'chromedriver')
+
+# Ensure chromedriver has executable permissions
+if os.path.exists(chromedriver_path):
+    print(f"Setting executable permissions for chromedriver at {chromedriver_path}")
+    os.chmod(chromedriver_path, stat.S_IRWXU)  # Set read, write, and execute permissions for the owner
+else:
+    print(f"Chromedriver not found at {chromedriver_path}")
 
 @app.route("/")
 def index():
