@@ -13,7 +13,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # Allow requests from any origin
 
 # Path to Chrome binary after installation
 chrome_binary_path = '/tmp/chrome/chrome-linux64/chrome'
-chromedriver_path = '/tmp/chrome/chromedriver-linux64/chromedriver'
+chromedriver_path = './chromedriver'
 
 @app.route("/")
 def index():

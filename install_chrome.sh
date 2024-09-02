@@ -10,7 +10,7 @@ uname -a
 mkdir -p /tmp/chrome
 cd /tmp/chrome
 
-# Download the Chrome zip package using the provided link
+# Download the Chrome zip package
 wget https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.86/linux64/chrome-linux64.zip -O chrome-linux64.zip
 
 # Extract the Chrome zip package
@@ -25,14 +25,5 @@ else
   exit 1
 fi
 
-# Download and extract the `chromedriver` using the provided link
-wget https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.86/linux64/chromedriver-linux64.zip -O chromedriver-linux64.zip
-unzip chromedriver-linux64.zip -d /tmp/chrome/
-
-# Make `chromedriver` executable
-chmod +x /tmp/chrome/chromedriver-linux64/chromedriver
-
-# Add Chrome and Chromedriver to the PATH
-export PATH=$PATH:/tmp/chrome/chrome-linux64:/tmp/chrome/chromedriver-linux64
-
-echo "Chrome and Chromedriver installation script completed."
+# No need to download chromedriver if it's already in the root directory
+echo "Assuming chromedriver is already in the root directory."
