@@ -26,4 +26,4 @@ else
 fi
 
 # No need to download chromedriver if it's already in the root directory
-echo "Assuming chromedriver is already in the root directory."
+echo "Assuming chromedriver is already in the /tmp directory."

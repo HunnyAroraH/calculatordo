@@ -13,8 +13,8 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # Allow requests from any origin
 
-# Path to chromedriver in the root directory
-chromedriver_path = "/workspace/chromedriver"
+# Path to chromedriver in a temporary directory
+chromedriver_path = "/tmp/chromedriver"
 
 # Check if chromedriver exists
 if not os.path.exists(chromedriver_path):
@@ -38,10 +38,10 @@ else:
     raise Exception(f"{chromedriver_path} is not executable")
 
 # Set the PATH environment variable
-os.environ["PATH"] += os.pathsep + "/workspace"
+os.environ["PATH"] += os.pathsep + "/tmp"
 
 # Path to Chrome binary after installation
-chrome_binary_path = '/tmp/chrome/opt/google/chrome/chrome'
+chrome_binary_path = '/tmp/chrome/chrome-linux64/chrome'
 
 @app.route("/")
 def index():
