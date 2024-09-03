@@ -1,6 +1,5 @@
 import os
 import stat
-import requests
 from flask import Flask, render_template, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -9,39 +8,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import concurrent.futures
 from flask_cors import CORS
+import time
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # Allow requests from any origin
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Path to chromedriver in a temporary directory
-chromedriver_path = "/tmp/chromedriver"
-
-# Check if chromedriver exists
-if not os.path.exists(chromedriver_path):
-    # Download chromedriver
-    print("Downloading chromedriver...")
-    url = "https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.86/linux64/chromedriver-linux64.zip"
-    r = requests.get(url)
-    with open(chromedriver_path, 'wb') as file:
-        file.write(r.content)
-    print("Download completed.")
-
-# Ensure the file has executable permissions
-print(f"Setting executable permissions for chromedriver at {chromedriver_path}")
-st = os.stat(chromedriver_path)
-os.chmod(chromedriver_path, st.st_mode | stat.S_IEXEC)
-
-# Verify that it's executable
-if os.access(chromedriver_path, os.X_OK):
-    print(f"{chromedriver_path} is executable")
-else:
-    raise Exception(f"{chromedriver_path} is not executable")
-
-# Set the PATH environment variable
-os.environ["PATH"] += os.pathsep + "/tmp"
-
-# Path to Chrome binary after installation
-chrome_binary_path = '/tmp/chrome/chrome-linux64/chrome'
+# Programmatically set execute permissions for chromedriver
+chromedriver_path = './chromedriver'
+if os.path.exists(chromedriver_path):
+    st = os.stat(chromedriver_path)
+    os.chmod(chromedriver_path, st.st_mode | stat.S_IEXEC)
 
 @app.route("/")
 def index():
@@ -53,9 +29,10 @@ def fetch_shop_now_link(service_link):
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.binary_location = chrome_binary_path  # Path to the installed Chrome binary
+    options.add_argument('--disable-gpu')
+    options.add_argument('--remote-debugging-port=9222')
 
-    # Use the local ChromeDriver binary
+    # Use the local chromedriver
     service = ChromeService(executable_path=chromedriver_path)
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -94,9 +71,9 @@ def scrape_links():
         options.add_argument('--headless')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
-        options.binary_location = chrome_binary_path  # Path to the installed Chrome binary
+        options.add_argument('--disable-gpu')
 
-        # Use the local ChromeDriver binary
+        # Use the local chromedriver
         service = ChromeService(executable_path=chromedriver_path)
         driver = webdriver.Chrome(service=service, options=options)
 
@@ -113,7 +90,7 @@ def scrape_links():
         print(f"Found {len(service_links)} service links.")
         driver.quit()
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             shop_now_links = list(executor.map(fetch_shop_now_link, service_links))
 
         print("Generated Shop Now Links:", shop_now_links)
@@ -129,4 +106,5 @@ def scrape_links():
         return response, 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
