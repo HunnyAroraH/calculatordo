@@ -653,7 +653,7 @@ document.getElementById('submitIboBtn').addEventListener('click', function () {
     // Show loading indicator or progress bar (optional)
     alert('Generating links, please wait...');
 
-    fetch('http://34.68.100.98:8080/scrape-links', {
+    fetch('http://34.45.204.41:8080/scrape-links', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
