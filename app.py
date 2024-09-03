@@ -41,6 +41,7 @@ def chrome_version():
     try:
         # Execute the command to get Chrome version
         result = subprocess.run(["google-chrome", "--version"], capture_output=True, text=True)
+        print(result)
         return jsonify({"chrome_version": result.stdout.strip()})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
