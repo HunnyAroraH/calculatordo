@@ -11,9 +11,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import concurrent.futures
 from flask_cors import CORS
+import logging
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Determine the platform and set paths accordingly
 if platform.system() == "Windows":
@@ -27,6 +32,7 @@ else:
     if os.path.exists(chromedriver_path):
         os.chmod(chromedriver_path, 0o755)
     else:
+        logger.error(f"ChromeDriver not found at {chromedriver_path}")
         raise Exception(f"ChromeDriver not found at {chromedriver_path}")
 
 # Set the PATH environment variable to include the directory with chromedriver
@@ -41,12 +47,14 @@ def chrome_version():
     try:
         # Execute the command to get Chrome version
         result = subprocess.run([chrome_binary_path, "--version"], capture_output=True, text=True)
+        logger.info(f"Chrome version: {result.stdout.strip()}")
         return jsonify({"chrome_version": result.stdout.strip()})
     except Exception as e:
+        logger.error(f"Error fetching Chrome version: {e}")
         return jsonify({"error": str(e)}), 500
 
 def fetch_shop_now_link(service_link):
-    print(f"Starting fetch for: {service_link}")
+    logger.info(f"Starting fetch for: {service_link}")
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
@@ -58,7 +66,7 @@ def fetch_shop_now_link(service_link):
     options.add_argument('--disable-software-rasterizer')
     options.add_argument('--no-first-run')
     options.add_argument('--disable-background-networking')
-    options.add_argument('--disable-default-apps')    
+    options.add_argument('--disable-default-apps')
     options.binary_location = chrome_binary_path  # Set the Chrome binary path
 
     service = ChromeService(executable_path=chromedriver_path)
@@ -66,21 +74,21 @@ def fetch_shop_now_link(service_link):
 
     try:
         driver.get(service_link)
-        print(f"Page loaded for service link: {service_link}")
+        logger.info(f"Page loaded for service link: {service_link}")
 
         shop_now_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(
                 (By.XPATH, '/html/body/div[2]/div/div/section/div/div/div/div/div/div[5]/section/div/div/div/div[2]/a'))
         )
         link = shop_now_button.get_attribute('href')
-        print(f"Found 'Shop Now' link: {link} for service link: {service_link}")
+        logger.info(f"Found 'Shop Now' link: {link} for service link: {service_link}")
         return link
     except Exception as e:
-        print(f"Error finding 'Shop Now' link on {service_link}: {e}")
+        logger.error(f"Error finding 'Shop Now' link on {service_link}: {e}")
         return 'No "Shop Now" link found.'
     finally:
         driver.quit()
-        print(f"Finished fetch for: {service_link}")
+        logger.info(f"Finished fetch for: {service_link}")
 
 @app.route('/scrape-links', methods=['POST', 'OPTIONS'])
 def scrape_links():
@@ -94,6 +102,7 @@ def scrape_links():
     try:
         data = request.get_json()
         ibo_number = data.get('iboNumber')
+        logger.info(f"Received IBO number: {ibo_number}")
 
         options = webdriver.ChromeOptions()
         options.add_argument('--no-sandbox')
@@ -108,7 +117,7 @@ def scrape_links():
         driver = webdriver.Chrome(service=service, options=options)
 
         base_url = f"https://{ibo_number}.acnibo.com/us-en/services"
-        print(f"Navigating to {base_url}")
+        logger.info(f"Navigating to {base_url}")
         driver.get(base_url)
 
         WebDriverWait(driver, 10).until(
@@ -117,20 +126,20 @@ def scrape_links():
 
         service_links = [element.get_attribute('href') for element in
                          driver.find_elements(By.CSS_SELECTOR, '.serviceContainer a')]
-        print(f"Found {len(service_links)} service links.")
+        logger.info(f"Found {len(service_links)} service links.")
         driver.quit()
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             shop_now_links = list(executor.map(fetch_shop_now_link, service_links))
 
-        print("Generated Shop Now Links:", shop_now_links)
+        logger.info(f"Generated Shop Now Links: {shop_now_links}")
 
         response = jsonify({'links': shop_now_links})
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
         response = jsonify({'error': 'An error occurred'})
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response, 500
