@@ -1,4 +1,3 @@
-# Update the Dockerfile to increase shared memory size
 FROM python:3.11-slim
 
 # Set environment variables
@@ -25,9 +24,6 @@ RUN apt-get update && apt-get install -y \
     libgbm-dev \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
-
-# Create a larger shared memory space
-RUN mkdir -p /dev/shm && mount -t tmpfs -o size=512m tmpfs /dev/shm
 
 # Download and install Chrome
 RUN wget https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.119/linux64/chrome-linux64.zip -O /tmp/chrome-linux64.zip && \
