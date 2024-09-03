@@ -653,7 +653,7 @@ document.getElementById('submitIboBtn').addEventListener('click', function () {
     // Show loading indicator or progress bar (optional)
     alert('Generating links, please wait...');
 
-    fetch('https://calculatorazure-hadsaubxdnhxckcz.eastus-01.azurewebsites.net/scrape-links', {
+    fetch('http://35.238.155.61:8080/scrape-links', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
