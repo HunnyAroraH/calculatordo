@@ -56,7 +56,6 @@ def chrome_version():
 def fetch_shop_now_link(service_link):
     logger.info(f"Starting fetch for: {service_link}")
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--disable-gpu')
