@@ -101,11 +101,12 @@ def scrape_links():
         logger.info(f"Received IBO number: {ibo_number}")
 
         options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
         options.add_argument('--no-sandbox')
         options.add_argument('--headless')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-gpu')
-        options.add_argument('--remote-debugging-port=9222')
+        options.add_argument('--remote-debugging-port=9230')
         options.add_argument('--window-size=1920x1080')
         options.binary_location = chrome_binary_path  # Set the Chrome binary path
 
@@ -123,6 +124,8 @@ def scrape_links():
         service_links = [element.get_attribute('href') for element in
                          driver.find_elements(By.CSS_SELECTOR, '.serviceContainer a')]
         logger.info(f"Found {len(service_links)} service links.")
+        driver.stop_client()
+        driver.close()
         driver.quit()
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
