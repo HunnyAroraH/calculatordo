@@ -1,4 +1,4 @@
-# Use an official Python runtime as a parent image
+# Update the Dockerfile to increase shared memory size
 FROM python:3.11-slim
 
 # Set environment variables
@@ -22,9 +22,14 @@ RUN apt-get update && apt-get install -y \
     fonts-liberation \
     libasound2 \
     xdg-utils \
-    libgbm-dev
+    libgbm-dev \
+    --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
 
-# Download and install the specific version of Chrome
+# Create a larger shared memory space
+RUN mkdir -p /dev/shm && mount -t tmpfs -o size=512m tmpfs /dev/shm
+
+# Download and install Chrome
 RUN wget https://storage.googleapis.com/chrome-for-testing-public/128.0.6613.119/linux64/chrome-linux64.zip -O /tmp/chrome-linux64.zip && \
     unzip /tmp/chrome-linux64.zip -d /tmp/ && \
     mv /tmp/chrome-linux64/chrome /usr/local/bin/chrome && \

@@ -54,6 +54,11 @@ def fetch_shop_now_link(service_link):
     options.add_argument('--disable-gpu')
     options.add_argument('--remote-debugging-port=9222')
     options.add_argument('--window-size=1920x1080')
+    options.add_argument('--disable-extensions')
+    options.add_argument('--disable-software-rasterizer')
+    options.add_argument('--no-first-run')
+    options.add_argument('--disable-background-networking')
+    options.add_argument('--disable-default-apps')    
     options.binary_location = chrome_binary_path  # Set the Chrome binary path
 
     service = ChromeService(executable_path=chromedriver_path)
@@ -91,8 +96,8 @@ def scrape_links():
         ibo_number = data.get('iboNumber')
 
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
         options.add_argument('--no-sandbox')
+        options.add_argument('--headless')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-gpu')
         options.add_argument('--remote-debugging-port=9222')
