@@ -650,40 +650,56 @@ document.getElementById('submitIboBtn').addEventListener('click', function () {
         return;
     }
 
-    // Show loading indicator or progress bar (optional)
-    alert('Generating links, please wait...');
-
-    fetch('http://34.45.204.41:8080/scrape-links', {
+    // Step 1: Get service links
+    fetch('http://your-server-address/scrape-service-links', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ iboNumber: iboNumber })
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.links && data.links.length > 0) {
-                alert('Download your service links from below.');
-                const csvContent = data.links.map(link => link).join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = window.URL.createObjectURL(blob);
-                const downloadBtn = document.createElement('button');
-                downloadBtn.innerText = 'Download your service links';
-                downloadBtn.onclick = () => {
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'service-links.csv';
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                };
-                document.body.appendChild(downloadBtn);
-            } else {
-                alert('No links found.');
-            }
-        })
-        .catch(error => {
-            alert('An error occurred: ' + error.message);
-        });
+    .then(response => response.json())
+    .then(data => {
+        if (data.service_links && data.service_links.length > 0) {
+            alert('Service links fetched, now getting shop links.');
+
+            // Step 2: Get shop links using fetched service links
+            return fetch('https://34.45.204.41:8080/scrape-shop-links', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ serviceLinks: data.service_links })
+            });
+        } else {
+            throw new Error('No service links found.');
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.shop_links && data.shop_links.length > 0) {
+            alert('Shop links fetched successfully.');
+
+            const csvContent = data.shop_links.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const downloadBtn = document.createElement('button');
+            downloadBtn.innerText = 'Download your shop links';
+            downloadBtn.onclick = () => {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'shop-links.csv';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            };
+            document.body.appendChild(downloadBtn);
+        } else {
+            alert('No shop links found.');
+        }
+    })
+    .catch(error => {
+        alert('An error occurred: ' + error.message);
+    });
 });
 
 // Initialize the table and button functionality
