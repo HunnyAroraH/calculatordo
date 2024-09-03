@@ -651,7 +651,7 @@ document.getElementById('submitIboBtn').addEventListener('click', function () {
     }
 
     // Step 1: Get service links
-    fetch('http://34.45.204.41/service-links', {
+    fetch('http://34.45.204.41/scrape-service-links', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
