@@ -21,7 +21,7 @@ if platform.system() == "Windows":
     chrome_binary_path = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"  # Default Chrome installation path on Windows
 else:
     chromedriver_path = "./chromedriver"  # Linux path
-    chrome_binary_path = "/tmp/chrome/chrome-linux64/chrome"  # Path after installing Chrome on Linux
+    chrome_binary_path = "/usr/local/bin/chrome"  # Path after installing Chrome on Linux
 
     # Ensure chromedriver has executable permissions on Linux
     if os.path.exists(chromedriver_path):
@@ -40,8 +40,7 @@ def index():
 def chrome_version():
     try:
         # Execute the command to get Chrome version
-        result = subprocess.run(["google-chrome", "--version"], capture_output=True, text=True)
-        print(result)
+        result = subprocess.run([chrome_binary_path, "--version"], capture_output=True, text=True)
         return jsonify({"chrome_version": result.stdout.strip()})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
