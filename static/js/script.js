@@ -661,27 +661,47 @@ document.getElementById('submitIboBtn').addEventListener('click', function () {
     .then(response => response.json())
     .then(data => {
         if (data.service_links && data.service_links.length > 0) {
+            console.log('Service links fetched:', data.service_links);
             alert('Service links fetched successfully.');
 
-            const csvContent = data.service_links.join('\n');
+            // Step 2: Fetch shop links
+            return fetch('http://34.45.204.41:8080/scrape-shop-links', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ iboNumber: iboNumber }) // Pass the IBO number to match the file
+            });
+        } else {
+            throw new Error('No service links found.');
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.shop_links && data.shop_links.length > 0) {
+            console.log('Shop links fetched:', data.shop_links);
+            alert('Shop links fetched successfully.');
+
+            const csvContent = data.shop_links.join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const downloadBtn = document.createElement('button');
-            downloadBtn.innerText = 'Download your service links';
+            downloadBtn.innerText = 'Download your shop links';
             downloadBtn.onclick = () => {
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'service-links.csv';
+                a.download = 'shop-links.csv';
                 a.click();
                 window.URL.revokeObjectURL(url);
             };
             document.body.appendChild(downloadBtn);
         } else {
-            alert('No service links found.');
+            alert('No shop links found.');
         }
     })
     .catch(error => {
         alert('An error occurred: ' + error.message);
+        console.error('Error details:', error);
     });
 });
 // Initialize the table and button functionality
