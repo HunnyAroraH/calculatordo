@@ -25,7 +25,7 @@ if platform.system() == "Windows":
     chromedriver_path = "./chromedriver.exe"  # Windows path
     chrome_binary_path = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"  # Default Chrome installation path on Windows
 else:
-    chromedriver_path = "./chromedriver"  # Linux path
+    chromedriver_path = "/usr/local/bin/chromedriver"  # Linux path
     chrome_binary_path = "/usr/local/bin/chrome"  # Path after installing Chrome on Linux
 
     # Ensure chromedriver has executable permissions on Linux
