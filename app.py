@@ -148,7 +148,6 @@
 
 import os
 import platform
-import subprocess
 import requests
 from flask import Flask, render_template, request, jsonify
 from selenium import webdriver
@@ -156,8 +155,9 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import logging
 import psutil
+import logging
+import time
 
 app = Flask(__name__)
 
@@ -172,115 +172,78 @@ if platform.system() == "Windows":
 else:
     chromedriver_path = "/usr/local/bin/chromedriver"
     chrome_binary_path = "/usr/bin/google-chrome"
-    if os.path.exists(chromedriver_path):
-        os.chmod(chromedriver_path, 0o755)
-    else:
-        logger.error(f"ChromeDriver not found at {chromedriver_path}")
-        raise Exception(f"ChromeDriver not found at {chromedriver_path}")
 
+# Set the PATH environment variable to include the directory with chromedriver
 os.environ["PATH"] += os.pathsep + os.getcwd()
 
 @app.route("/")
 def index():
     return render_template('index.html')
 
-@app.route("/scrape-service-links", methods=['POST'])
+def kill_processes():
+    for process in psutil.process_iter(['pid', 'name']):
+        if process.info['name'] in ['chromedriver', 'chrome', 'chrome.exe']:
+            os.kill(process.info['pid'], 9)
+
+def fetch_service_links(ibo_number, max_retries=3):
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            options = webdriver.ChromeOptions()
+            options.add_argument('--headless')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--disable-gpu')
+            options.binary_location = chrome_binary_path
+
+            service = ChromeService(executable_path=chromedriver_path)
+            driver = webdriver.Chrome(service=service, options=options)
+
+            base_url = f"https://{ibo_number}.acnibo.com/us-en/services"
+            logger.info(f"Navigating to {base_url}")
+            driver.get(base_url)
+
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, '.serviceContainer a'))
+            )
+
+            service_links = [element.get_attribute('href') for element in driver.find_elements(By.CSS_SELECTOR, '.serviceContainer a')]
+            logger.info(f"Found {len(service_links)} service links.")
+
+            driver.quit()
+            service.stop()
+
+            return service_links
+
+        except Exception as e:
+            logger.error(f"Error during fetching service links: {e}")
+            retry_count += 1
+            time.sleep(2)  # wait before retrying
+
+        finally:
+            kill_processes()  # Ensure all processes are killed even if an error occurs
+
+    logger.error(f"Failed to fetch service links after {max_retries} attempts")
+    return []
+
+@app.route('/scrape-service-links', methods=['POST'])
 def scrape_service_links():
     try:
         data = request.get_json()
         ibo_number = data.get('iboNumber')
         logger.info(f"Received IBO number: {ibo_number}")
 
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--disable-gpu')
-        options.binary_location = chrome_binary_path
+        service_links = fetch_service_links(ibo_number)
 
-        service = ChromeService(executable_path=chromedriver_path)
-        driver = webdriver.Chrome(service=service, options=options)
+        if not service_links:
+            return jsonify({'error': 'Failed to fetch service links after multiple attempts'}), 500
 
-        base_url = f"https://{ibo_number}.acnibo.com/us-en/services"
-        logger.info(f"Navigating to {base_url}")
-        driver.get(base_url)
-
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '.serviceContainer a'))
-        )
-
-        service_links = [element.get_attribute('href') for element in
-                         driver.find_elements(By.CSS_SELECTOR, '.serviceContainer a')]
-        logger.info(f"Found {len(service_links)} service links.")
-
-        driver.quit()
-        service.stop()
-
-        # Store service links in a session or temporary file for the next step
         return jsonify({'service_links': service_links})
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@app.route("/scrape-shop-links", methods=['POST'])
-def scrape_shop_links():
-    try:
-        data = request.get_json()
-        service_links = data.get('serviceLinks', [])
-        shop_links = []
-
-        for link in service_links:
-            shop_link = fetch_shop_now_link(link)
-            shop_links.append(shop_link)
-
-        return jsonify({'shop_links': shop_links})
-
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        return jsonify({'error': str(e)}), 500
-
-def fetch_shop_now_link(service_link):
-    logger.info(f"Starting fetch for: {service_link}")
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.binary_location = chrome_binary_path
-
-    service = ChromeService(executable_path=chromedriver_path)
-    driver = webdriver.Chrome(service=service, options=options)
-
-    try:
-        driver.get(service_link)
-        logger.info(f"Page loaded for service link: {service_link}")
-
-        shop_now_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, '//a[contains(text(), "Shop Now")]')
-            )
-        )
-        link = shop_now_button.get_attribute('href')
-        logger.info(f"Found 'Shop Now' link: {link} for service link: {service_link}")
-        return link
-    except Exception as e:
-        logger.error(f"Error finding 'Shop Now' link on {service_link}: {e}")
-        return 'No "Shop Now" link found.'
-    finally:
-        driver.quit()
-        service.stop()
-        kill_chrome_processes()
-
-def kill_chrome_processes():
-    """Kill all Chrome and ChromeDriver processes."""
-    chrome_processes = ["chrome", "chromedriver"]
-    for proc in psutil.process_iter():
-        try:
-            if proc.name().lower() in chrome_processes:
-                proc.kill()
-                logger.info(f"Killed process: {proc.name()} with PID: {proc.pid}")
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
+        kill_processes()  # Ensure processes are killed even in case of error
+        return jsonify({'error': 'An error occurred'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
