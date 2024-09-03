@@ -148,18 +148,19 @@
 
 import os
 import platform
-import requests
+import time
+import psutil
+import logging
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import psutil
-import logging
-import time
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -176,14 +177,14 @@ else:
 # Set the PATH environment variable to include the directory with chromedriver
 os.environ["PATH"] += os.pathsep + os.getcwd()
 
-@app.route("/")
-def index():
-    return render_template('index.html')
-
 def kill_processes():
+    """Kill all Chrome and ChromeDriver processes."""
     for process in psutil.process_iter(['pid', 'name']):
         if process.info['name'] in ['chromedriver', 'chrome', 'chrome.exe']:
-            os.kill(process.info['pid'], 9)
+            try:
+                os.kill(process.info['pid'], 9)
+            except Exception as e:
+                logger.error(f"Failed to kill process {process.info['pid']}: {e}")
 
 def fetch_service_links(ibo_number, max_retries=3):
     retry_count = 0
@@ -211,7 +212,7 @@ def fetch_service_links(ibo_number, max_retries=3):
             logger.info(f"Found {len(service_links)} service links.")
 
             driver.quit()
-            service.stop()
+            kill_processes()  # Ensure all processes are killed
 
             return service_links
 
@@ -220,11 +221,14 @@ def fetch_service_links(ibo_number, max_retries=3):
             retry_count += 1
             time.sleep(2)  # wait before retrying
 
-        finally:
-            kill_processes()  # Ensure all processes are killed even if an error occurs
+            kill_processes()  # Ensure all processes are killed on error
 
     logger.error(f"Failed to fetch service links after {max_retries} attempts")
     return []
+
+@app.route("/")
+def index():
+    return render_template('index.html')
 
 @app.route('/scrape-service-links', methods=['POST'])
 def scrape_service_links():
@@ -246,4 +250,4 @@ def scrape_service_links():
         return jsonify({'error': 'An error occurred'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
