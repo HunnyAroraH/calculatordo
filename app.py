@@ -62,8 +62,6 @@ def fetch_shop_now_link(service_link):
     options.add_argument('--disable-gpu')
     options.add_argument('--remote-debugging-port=9222')
     options.add_argument('--window-size=1920x1080')
-    options.add_argument('--no-first-run')
-    options.add_argument('--disable-background-networking')
     options.binary_location = chrome_binary_path  # Set the Chrome binary path
 
     service = ChromeService(executable_path=chromedriver_path)
@@ -84,8 +82,6 @@ def fetch_shop_now_link(service_link):
         logger.error(f"Error finding 'Shop Now' link on {service_link}: {e}")
         return 'No "Shop Now" link found.'
     finally:
-        driver.stop_client()
-        driver.close()
         driver.quit()
         logger.info(f"Finished fetch for: {service_link}")
 
@@ -106,7 +102,6 @@ def scrape_links():
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
         options.add_argument('--no-sandbox')
-        options.add_argument('--headless')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-gpu')
         options.add_argument('--remote-debugging-port=9230')
