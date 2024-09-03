@@ -539,7 +539,7 @@ function provideFeedback(totalServices, totalPoints) {
     // Check EQL qualification
     if (totalPoints < 30) {
         pointsNeeded = 30 - totalPoints;
-        feedbackText += `To reach EQL, you need ${pointsNeeded} more point${pointsNeeded > 1 ? 's' : ''}. `;
+        feedbackText += `To reach ETL, you need ${pointsNeeded} more point${pointsNeeded > 1 ? 's' : ''}. `;
     }
 
     // Check $500 bonus qualification (requires at least 15 points and 1 downline)

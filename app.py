@@ -56,7 +56,7 @@ def chrome_version():
 def fetch_shop_now_link(service_link):
     logger.info(f"Starting fetch for: {service_link}")
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
+    options.add_argument('--headless') 
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--disable-gpu')
@@ -84,6 +84,8 @@ def fetch_shop_now_link(service_link):
         logger.error(f"Error finding 'Shop Now' link on {service_link}: {e}")
         return 'No "Shop Now" link found.'
     finally:
+        driver.stop_client()
+        driver.close()
         driver.quit()
         logger.info(f"Finished fetch for: {service_link}")
 
